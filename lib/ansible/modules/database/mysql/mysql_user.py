@@ -299,7 +299,10 @@ def user_add(cursor, user, host, host_all, password, encrypted, new_priv, check_
         return True
 
     if password and encrypted:
-        cursor.execute("CREATE USER %s@%s IDENTIFIED BY PASSWORD %s", (user, host, password))
+        if use_old_user_mgmt(cursor):
+            cursor.execute("CREATE USER %s@%s IDENTIFIED BY PASSWORD %s", (user, host, password))
+        else:
+            cursor.execute("CREATE USER %s@%s IDENTIFIED WITH mysql_native_password AS %s", (user, host, password))
     elif password and not encrypted:
         cursor.execute("CREATE USER %s@%s IDENTIFIED BY %s", (user, host, password))
     else:
